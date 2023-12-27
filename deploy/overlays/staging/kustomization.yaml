@@ -16,3 +16,6 @@ labels:
     app.kubernetes.io/environment: staging
     app.kubernetes.io/instance: api-staging
     app.kubernetes.io/name: api-staging
+
+transformers:
+- transformer.yaml

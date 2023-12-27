@@ -1,22 +1,37 @@
+// main.go
+
 package main
 
 import (
-	"fmt"
+	"log"
 	"net/http"
+	"strings"
+
+	"github.com/michaelahli/octopus/src/services"
+	"github.com/michaelahli/octopus/svcutils/mainpkg"
+	"github.com/spf13/viper"
 )
 
 func main() {
-	http.HandleFunc("/", handler)
-
-	port := 8080
-
-	fmt.Printf("Server is listening on port %d...\n", port)
-	err := http.ListenAndServe(fmt.Sprintf(":%d", port), nil)
+	cfg, err := mainpkg.ServiceConfig("env/config")
 	if err != nil {
-		fmt.Printf("Error starting the server: %v\n", err)
+		log.Fatalf("initialize config: %s\n", err.Error())
 	}
+
+	serve(cfg)
 }
 
-func handler(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, "Hello %s", r.URL.Path)
+func serve(cfg *viper.Viper) {
+	port := cfg.GetString("server.port")
+
+	svc := services.New(cfg)
+
+	http.HandleFunc("/book", svc.HandleBooks)
+	http.HandleFunc("/", svc.CommonHandler)
+
+	log.Printf("Server is listening on port %s...\n", port)
+	port = strings.Join([]string{"", port}, ":")
+	if err := http.ListenAndServe(port, nil); err != nil {
+		log.Fatalf("Error starting the server: %s\n", err.Error())
+	}
 }

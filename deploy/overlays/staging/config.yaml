@@ -3,3 +3,4 @@ kind: ConfigMap
 metadata:
   name: octopus-configmap
 data:
+  RUNTIME_ENVIRONMENT: staging

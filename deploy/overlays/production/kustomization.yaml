@@ -7,7 +7,6 @@ nameSuffix: -production
 
 namespace: production-octopus
 
-
 patchesStrategicMerge:
 - config.yaml
 labels:
@@ -16,3 +15,6 @@ labels:
     app.kubernetes.io/environment: production
     app.kubernetes.io/instance: api-production
     app.kubernetes.io/name: api-production
+
+transformers:
+- transformer.yaml

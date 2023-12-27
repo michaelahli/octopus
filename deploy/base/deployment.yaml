@@ -14,11 +14,14 @@ spec:
     spec:
       volumes:
         - name: config-volume
-          configMap:
-            name: octopus-configmap
       containers:
         - name: octopus
           image: bpcloudrepository/octopus:latest
           imagePullPolicy: Always
           ports:
             - containerPort: 8080
+          envFrom:
+            - configMapRef:
+                name: octopus-configmap
+            - secretRef:
+                name: octopus-secret

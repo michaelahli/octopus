@@ -2,23 +2,47 @@ package main
 
 import (
 	"net/http"
-	"net/http/httptest"
 	"testing"
+
+	"github.com/michaelahli/octopus/src/services"
+	"github.com/spf13/viper"
 )
 
-func TestHandler(t *testing.T) {
-	req := httptest.NewRequest("GET", "http://example.com/some/path", nil)
+type MockService struct{}
 
-	rr := httptest.NewRecorder()
+func (s *MockService) HandleBooks(w http.ResponseWriter, r *http.Request) {}
 
-	handler(rr, req)
+func (s *MockService) CommonHandler(w http.ResponseWriter, r *http.Request) {}
 
-	if status := rr.Code; status != http.StatusOK {
-		t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusOK)
+func TestStartServer(t *testing.T) {
+	config := viper.New()
+	config.Set("server.port", "8080")
+
+	mockService := &MockService{}
+
+	go serveTest(config, mockService)
+
+	resp, err := http.Get("http://localhost:8080/")
+	if err != nil {
+		t.Fatalf("Error making request to server: %v", err)
 	}
+	defer resp.Body.Close()
 
-	expected := "Hello /some/path"
-	if rr.Body.String() != expected {
-		t.Errorf("handler returned unexpected body: got %v want %v", rr.Body.String(), expected)
+	if resp.StatusCode != http.StatusOK {
+		t.Errorf("Expected status code %d, got %d", http.StatusOK, resp.StatusCode)
 	}
+}
+
+func serveTest(cfg *viper.Viper, svc services.Services) {
+	port := cfg.GetString("server.port")
+
+	http.HandleFunc("/book", svc.HandleBooks)
+	http.HandleFunc("/", svc.CommonHandler)
+
+	port = ":" + port
+	go func() {
+		if err := http.ListenAndServe(port, nil); err != nil {
+			panic(err)
+		}
+	}()
 }
