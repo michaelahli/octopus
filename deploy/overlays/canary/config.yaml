@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: octopus-configmap
+data:
+  RUNTIME_ENVIRONMENT: production
+  DATABASE_DBNAME: octopusdb

@@ -6,7 +6,7 @@ resources:
 - config.yaml
 
 labels:
-- includeSelectors: true
+- includeSelectors: false
   pairs:
     app.kubernetes.io/component: api
     app.kubernetes.io/name: api

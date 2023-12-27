@@ -1,0 +1,8 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: octopus-configmap
+data:
+  RUNTIME_ENVIRONMENT: local
+  DATABASE_HOST: octopusdb-postgresql.octopusdb.svc.cluster.local
+  DATABASE_USER: octopusdb_user

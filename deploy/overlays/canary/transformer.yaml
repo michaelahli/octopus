@@ -1,0 +1,12 @@
+apiVersion: builtin
+kind: PrefixSuffixTransformer
+metadata:
+  name: customPrefixer
+suffix: "-production"
+fieldSpecs:
+  - kind: Deployment
+    group: apps
+    path: spec/template/spec/containers/envFrom/secretRef/name
+  - kind: Deployment
+    group: apps
+    path: spec/template/spec/containers/envFrom/configMapRef/name
