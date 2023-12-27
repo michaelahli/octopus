@@ -1,3 +1,4 @@
 .harness/
 certificates/
 env/config
+.DS_Store
