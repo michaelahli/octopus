@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	"github.com/michaelahli/octopus/src/services"
+	"github.com/michaelahli/octopus/src/storage/postgres"
 	"github.com/michaelahli/octopus/svcutils/mainpkg"
 	"github.com/spf13/viper"
 )
@@ -24,7 +25,12 @@ func main() {
 func serve(cfg *viper.Viper) {
 	port := cfg.GetString("server.port")
 
-	svc := services.New(cfg)
+	db, err := postgres.New(cfg)
+	if err != nil {
+		log.Fatalf("initialize database connection: %s\n", err.Error())
+	}
+
+	svc := services.New(cfg, db)
 
 	http.HandleFunc("/book", svc.HandleBooks)
 	http.HandleFunc("/", svc.CommonHandler)

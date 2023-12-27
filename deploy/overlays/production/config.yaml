@@ -4,3 +4,4 @@ metadata:
   name: octopus-configmap
 data:
   RUNTIME_ENVIRONMENT: production
+  DATABASE_DBNAME: octopusdb
