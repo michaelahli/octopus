@@ -30,3 +30,9 @@ patchesJson6902:
       kind: Ingress
       name: octopus-ingress
       version: v1
+  - path: hpa.yaml
+    target:
+      group: autoscaling
+      kind: HorizontalPodAutoscaler
+      name: octopus-hpa
+      version: v2

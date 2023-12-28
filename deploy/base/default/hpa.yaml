@@ -1,0 +1,25 @@
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: octopus-hpa
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: octopus-deployment
+  minReplicas: 3
+  maxReplicas: 5
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 50
+    # TODO: some application that is using garbage collection like java tend to maximize memory usage.
+    # - type: Resource
+    #   resource:
+    #     name: memory
+    #     target:
+    #       type: Utilization
+    #       averageUtilization: 50

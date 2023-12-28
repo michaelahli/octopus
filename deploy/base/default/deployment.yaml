@@ -25,5 +25,12 @@ spec:
                 name: octopus-configmap
             - secretRef:
                 name: octopus-secret
+          resources:
+            requests:
+              memory: "64Mi"
+              cpu: "50m"
+            limits:
+              memory: "128Mi"
+              cpu: "100m"
       imagePullSecrets:
         - name: registry-secret
