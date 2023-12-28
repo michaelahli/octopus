@@ -16,7 +16,7 @@ spec:
         - name: config-volume
       containers:
         - name: octopus
-          image: bpcloudrepository/octopus:latest
+          image: host.docker.internal:30500/octopus:latest
           imagePullPolicy: Always
           ports:
             - containerPort: 8080
@@ -25,3 +25,5 @@ spec:
                 name: octopus-configmap
             - secretRef:
                 name: octopus-secret
+      imagePullSecrets:
+        - name: registry-secret
