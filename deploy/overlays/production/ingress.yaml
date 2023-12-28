@@ -1,0 +1,12 @@
+- op: add
+  path: /metadata/annotations/cert-manager.io~1cluster-issuer
+  value: letsencrypt-traefik-real
+
+- op: replace
+  path: /spec/tls/0/hosts
+  value:
+    - octopus.bio
+
+- op: replace
+  path: /spec/rules/0/host
+  value: octopus.bio

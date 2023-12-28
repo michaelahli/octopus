@@ -29,3 +29,9 @@ patchesJson6902:
       kind: Service
       name: octopus-service
       version: v1
+  - path: ingress.yaml
+    target:
+      group: networking.k8s.io
+      kind: Ingress
+      name: octopus-ingress
+      version: v1
