@@ -22,3 +22,10 @@ transformers:
 replicas:
   - name: octopus-deployment
     count: 1
+
+patchesJson6902:
+  - path: service.yaml
+    target:
+      kind: Service
+      name: octopus-service
+      version: v1
