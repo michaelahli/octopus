@@ -12,6 +12,7 @@ spec:
       labels:
         app: octopus
     spec:
+      serviceAccountName: octopus-service-account
       volumes:
         - name: config-volume
       containers:

@@ -6,6 +6,7 @@ resources:
   - config.yaml
   - ingress.yaml
   - hpa.yaml
+  - serviceaccount.yaml
 
 labels:
   - includeSelectors: false
