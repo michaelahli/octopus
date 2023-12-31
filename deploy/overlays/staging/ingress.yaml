@@ -5,8 +5,8 @@
 - op: replace
   path: /spec/tls/0/hosts
   value:
-    - staging.octopus.bio
+    - staging.octopus.local
 
 - op: replace
   path: /spec/rules/0/host
-  value: staging.octopus.bio
+  value: staging.octopus.local
