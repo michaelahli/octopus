@@ -1,0 +1,81 @@
+version: 1
+kind: pipeline
+spec:
+  stages:
+    - name: integration
+      type: ci
+      when: build.event == "push"
+      spec:
+        platform:
+          arch: amd64
+          os: linux
+        steps:
+          - name: verify
+            type: run
+            spec:
+              container:
+                image: golang:1.21.4
+              script: |-
+                go version
+                go mod vendor
+                go mod verify
+          - name: lint
+            type: run
+            spec:
+              container:
+                image: golang:1.21.4
+              script: |-
+                go vet ./...
+          - name: test
+            type: run
+            spec:
+              container:
+                image: golang:1.21.4
+              script: |-
+                go test -vet=off -race -timeout=10m -coverprofile=profile.cov ./...
+                coverage=$(go tool cover -func profile.cov | grep "total:" | awk '{print $3}' | sed 's/%//')
+                threshold=10.0
+                if (( $(echo "$coverage < $threshold" | bc -l) )); then
+                    echo "Error: Test coverage is below $threshold%"
+                    exit 1
+                else
+                    echo "Test coverage is $coverage%, meeting the threshold."
+                fi
+          - name: push
+            image: plugins/docker
+            type: plugin
+            spec:
+              name: docker
+              inputs:
+                registry: host.docker.internal:30500
+                repo: host.docker.internal:30500/octopus
+                username: ${{ secrets.get("docker_username") }}
+                password: ${{ secrets.get("docker_password") }}
+                force_tag: true
+                insecure: true
+                tags: ${{ build.commit }}
+
+    - name: staging
+      type: ci
+      when: |
+        build.event == "push"
+        and
+        build.target matches "main|feature/.*"
+      spec:
+        platform:
+          arch: amd64
+          os: linux
+        steps:
+          - name: deployment
+            type: run
+            spec:
+              container: alpine/k8s:1.26.9
+              shell: bash
+              script: |-
+                kubectl config set-cluster docker-desktop --server=${{ secrets.get("kubernetes_server") }} --insecure-skip-tls-verify=true
+                kubectl config set-credentials docker-desktop --client-certificate=<(cat certificates/client-cert.pem) --client-key=<(cat certificates/client-key.pem) --embed-certs=true
+                kubectl config set-context docker-desktop --cluster=docker-desktop --user=docker-desktop
+                kubectl config use-context docker-desktop
+                cd deploy/overlays/staging
+                kustomize edit set image host.docker.internal:30500/octopus=host.docker.internal:30500/octopus:${{ build.commit }}
+                kustomize build | kubectl apply -f -

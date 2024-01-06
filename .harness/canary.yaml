@@ -1,0 +1,37 @@
+version: 1
+kind: pipeline
+spec:
+  stages:
+    - name: release
+      type: ci
+      when: build.event == "manual"
+      spec:
+        platform:
+          arch: amd64
+          os: linux
+        steps:
+          - name: e2e
+            type: run
+            spec:
+              container:
+                image: mcr.microsoft.com/playwright:v1.40.0-jammy
+              script: |-
+                export RUNTIME_ENV=staging
+                export ENDPOINT=http://host.docker.internal:31000
+
+                npm install
+                npx playwright test
+          - name: deployment
+            type: run
+            when: build.target matches "main|release/.*"
+            spec:
+              container: alpine/k8s:1.26.9
+              shell: bash
+              script: |-
+                kubectl config set-cluster docker-desktop --server=${{ secrets.get("kubernetes_server") }} --insecure-skip-tls-verify=true
+                kubectl config set-credentials docker-desktop --client-certificate=<(cat certificates/client-cert.pem) --client-key=<(cat certificates/client-key.pem) --embed-certs=true
+                kubectl config set-context docker-desktop --cluster=docker-desktop --user=docker-desktop
+                kubectl config use-context docker-desktop
+                cd deploy/overlays/canary
+                kustomize edit set image host.docker.internal:30500/octopus=host.docker.internal:30500/octopus:${{ build.commit }}
+                kustomize build | kubectl apply -f -
