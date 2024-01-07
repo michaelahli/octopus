@@ -19,10 +19,6 @@ labels:
 transformers:
   - transformer.yaml
 
-replicas:
-  - name: octopus-deployment
-    count: 1
-
 patchesJson6902:
   - path: service.yaml
     target:

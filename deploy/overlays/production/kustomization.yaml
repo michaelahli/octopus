@@ -19,10 +19,6 @@ labels:
 transformers:
   - transformer.yaml
 
-replicas:
-  - name: octopus-deployment
-    count: 3
-
 patchesJson6902:
   - path: ingress.yaml
     target:
